@@ -37,28 +37,20 @@ import Foundation
     }
 
     public var wrappedValue: Service {
-        mutating get {
+        get {
             do {
-                self.service = try container.resolve(type: Service.self,
-                                                     forCustomTypeIdentifier: customTypeIdentifier,
-                                                     factoryParameters: factoryParameters,
-                                                     resolver: container)
+                let service = try container.resolve(type: Service.self,
+                                                    forCustomTypeIdentifier: customTypeIdentifier,
+                                                    factoryParameters: factoryParameters,
+                                                    resolver: container)
+                return service
             } catch {
                 fatalError("DI fatal error :\(error)")
             }
-            return service
         }
-        mutating set {
-            service = newValue
+        set {
+            fatalError("You are not expected to substitute resolved objects")
         }
     }
 
-    public var projectedValue: InjectService<Service> {
-        get {
-            return self
-        }
-        mutating set {
-            self = newValue
-        }
-    }
 }

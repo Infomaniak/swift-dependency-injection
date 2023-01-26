@@ -248,6 +248,32 @@ final class ITSimpleReslover: XCTestCase {
         XCTAssertEqual(resolver.store.count, 2)
     }
     
+    func testResolveSampleType_inlineResolution() {
+        // GIVEN
+        let resolver = SimpleResolver.sharedResolver
+        let expectedObject = SomeClass()
+        var factoryClosureCallCount = 0
+        let factory = Factory(type: SomeClass.self) { _, _ in
+            factoryClosureCallCount += 1
+            return expectedObject
+        }
+        
+        try! resolver.store(factory: factory)
+        
+        let classThatDoesInlineDI = ClassThatDoesInlineDI()
+        
+        // WHEN
+        let resolved = classThatDoesInlineDI.inlineDI()
+        
+        // THEN
+        XCTAssertTrue(expectedObject === resolved, "identity of resolved object should match")
+        XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called once exactly")
+        
+        XCTAssertEqual(resolver.factories.count, resolver.store.count)
+        XCTAssertEqual(resolver.factories.count, 1)
+        XCTAssertEqual(resolver.store.count, 1)
+    }
+    
     func testResolveSampleType_propertyWrapper_chainedDependency_classes() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -327,7 +353,7 @@ final class ITSimpleReslover: XCTestCase {
         try! resolver.store(factory: factory)
         
         // WHEN
-        var chain = StructThatChainsDI()
+        let chain = StructThatChainsDI()
         
         // THEN
         XCTAssertEqual(chain.injected.dependency.identity, expectedStruct.identity,
@@ -384,6 +410,16 @@ class ClassThatChainsDI {
     init() {}
     
     @InjectService var injected: ClassWithSomeDependentType
+}
+
+/// Resolve a type inside a function
+class ClassThatDoesInlineDI {
+    init() {}
+    
+    func inlineDI() -> SomeClass {
+        let resolved = InjectService<SomeClass>().wrappedValue
+        return resolved
+    }
 }
 
 class ClassWithSomeDependentType {
