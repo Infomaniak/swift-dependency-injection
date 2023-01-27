@@ -154,6 +154,30 @@ final class ITSimpleReslover: XCTestCase {
         XCTAssertEqual(resolver.store.count, 1)
     }
     
+    func testResolveSampleType_propertyWrapper_protocol() {
+        // GIVEN
+        let resolver = SimpleResolver.sharedResolver
+        let expectedObject = SomeClassConforming()
+        var factoryClosureCallCount = 0
+        let factory = Factory(type: SomeClassable.self) { _, _ in
+            factoryClosureCallCount += 1
+            return expectedObject
+        }
+        
+        try! resolver.store(factory: factory)
+        
+        // WHEN
+        let classWithDIProperty = ClassThatUsesConformingDI()
+        
+        // THEN
+        XCTAssertTrue(expectedObject === classWithDIProperty.injected, "identity of resolved object should match")
+        XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called once exactly")
+        
+        XCTAssertEqual(resolver.factories.count, resolver.store.count)
+        XCTAssertEqual(resolver.factories.count, 1)
+        XCTAssertEqual(resolver.store.count, 1)
+    }
+    
     func testResolveSampleType_propertyWrapper_withCustomIdentifiers() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -371,11 +395,22 @@ final class ITSimpleReslover: XCTestCase {
 
 class SomeClass {}
 
+protocol SomeClassable: AnyObject {}
+
+class SomeClassConforming: SomeClassable {}
+
 /// A class with only one resolved property
 class ClassThatUsesDI {
     init() {}
     
     @InjectService var injected: SomeClass
+}
+
+/// A class with only one resolved property
+class ClassThatUsesConformingDI {
+    init() {}
+    
+    @InjectService var injected: SomeClassable
 }
 
 /// A class with one resolved property using `factoryParameters`
