@@ -22,7 +22,7 @@ import Foundation
 public struct Factory: CustomDebugStringConvertible {
     
     public var debugDescription: String {
-        "<\(Swift.type(of: self)): for type:\(self.type), closure:\(String(describing: self.closure))"
+        "<\(Swift.type(of: self)): for type:\(self.type), closure:\(String(describing: self.closure))>"
     }
     
     /// Something that can build a type, given some extra parameters and a resolver for chained dependency
