@@ -21,7 +21,16 @@ import Foundation
 // MARK: - InjectService<Service>
 
 /// A property wrapper that resolves shared objects
-@propertyWrapper public struct InjectService<Service> {
+@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        <\(type(of: self))
+        wrapping type:'\(Service.self)'
+        customTypeIdentifier:\(String(describing: customTypeIdentifier))
+        factoryParameters:\(String(describing: factoryParameters))'>
+        """
+    }
+    
     private var service: Service!
 
     public var container: SimpleResolvable

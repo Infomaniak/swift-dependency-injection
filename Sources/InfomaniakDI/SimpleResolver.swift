@@ -57,7 +57,17 @@ public protocol SimpleStorable {
 /// For now, once initiated, stores types as long as the app lives
 ///
 /// Access from Main Queue only
-public final class SimpleResolver: SimpleResolvable, SimpleStorable {
+public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        """
+        <\(type(of: self)):\(Unmanaged.passUnretained(self).toOpaque())
+        \(factories.count) factories and \(store.count) stored types
+        factories: \(factories)
+        store: \(store)>
+        """
+    }
+    
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
         case typeMissmatch(expected: String)

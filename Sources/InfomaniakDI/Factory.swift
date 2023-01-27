@@ -19,7 +19,12 @@
 import Foundation
 
 /// Something that can build a type
-public struct Factory {
+public struct Factory: CustomDebugStringConvertible {
+    
+    public var debugDescription: String {
+        "<\(Swift.type(of: self)): for type:\(self.type), closure:\(String(describing: self.closure))"
+    }
+    
     /// Something that can build a type, given some extra parameters and a resolver for chained dependency
     public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) -> Any
 
