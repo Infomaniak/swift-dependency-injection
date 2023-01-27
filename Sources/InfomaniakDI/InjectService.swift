@@ -43,19 +43,20 @@ import Foundation
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
         self.container = container
+        
+        do {
+            self.service = try container.resolve(type: Service.self,
+                                                 forCustomTypeIdentifier: customTypeIdentifier,
+                                                 factoryParameters: factoryParameters,
+                                                 resolver: container)
+        } catch {
+            fatalError("DI fatal error :\(error)")
+        }
     }
 
     public var wrappedValue: Service {
         get {
-            do {
-                let service = try container.resolve(type: Service.self,
-                                                    forCustomTypeIdentifier: customTypeIdentifier,
-                                                    factoryParameters: factoryParameters,
-                                                    resolver: container)
-                return service
-            } catch {
-                fatalError("DI fatal error :\(error)")
-            }
+            self.service
         }
         set {
             fatalError("You are not expected to substitute resolved objects")
