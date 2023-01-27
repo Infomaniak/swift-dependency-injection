@@ -124,14 +124,11 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable {
     
     func buildIdentifier(type: Any.Type,
                          forIdentifier identifier: String? = nil) -> String {
-        let serviceIdentifier: String
         if let identifier {
-            serviceIdentifier = "\(type):\(identifier)"
+            return "\(type):\(identifier)"
         } else {
-            serviceIdentifier = "\(type)"
+            return "\(type)"
         }
-        
-        return serviceIdentifier
     }
     
     // MARK: testing
