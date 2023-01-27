@@ -120,7 +120,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         }
         
         // Apply factory closure
-        guard let service = factory.build(factoryParameters: factoryParameters, resolver: resolver) as? Service else {
+        guard let service = try factory.build(factoryParameters: factoryParameters, resolver: resolver) as? Service else {
             throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)")
         }
         

@@ -26,7 +26,7 @@ public struct Factory: CustomDebugStringConvertible {
     }
     
     /// Something that can build a type, given some extra parameters and a resolver for chained dependency
-    public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) -> Any
+    public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) throws -> Any
 
     var closure: FactoryClosure
     var type: Any.Type
@@ -37,7 +37,7 @@ public struct Factory: CustomDebugStringConvertible {
     }
 
     public func build(factoryParameters: [String: Any]? = nil,
-                      resolver: SimpleResolvable = SimpleResolver.sharedResolver) -> Any {
-        closure(factoryParameters, resolver)
+                      resolver: SimpleResolvable = SimpleResolver.sharedResolver) throws -> Any {
+        try closure(factoryParameters, resolver)
     }
 }
