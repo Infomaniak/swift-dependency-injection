@@ -58,23 +58,25 @@ public protocol SimpleStorable {
 ///
 /// Access from Main Queue only
 public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible {
-    
     public var debugDescription: String {
-        """
-        <\(type(of: self)):\(Unmanaged.passUnretained(self).toOpaque())
-        \(factories.count) factories and \(store.count) stored types
-        factories: \(factories)
-        store: \(store)>
-        """
+        var buffer: String!
+        queue.sync {
+            buffer = """
+            <\(type(of: self)):\(Unmanaged.passUnretained(self).toOpaque())
+            \(factories.count) factories and \(store.count) stored types
+            factories: \(factories)
+            store: \(store)>
+            """
+        }
+        return buffer
     }
     
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
         case typeMissmatch(expected: String)
-        case notMainThread
     }
     
-    // The last singleton that will exist on our code in the end
+    /// One singleton to rule them all
     public static let sharedResolver = SimpleResolver()
     
     /// Factory collection
@@ -83,18 +85,19 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     /// Resolved object collection
     var store = [String: Any]()
 
+    /// A serial queue for thread safety
+    private let queue = DispatchQueue(label: "com.infomaniakDI.resolver")
+    
     // MARK: SimpleStorable
     
     public func store(factory: Factory,
                       forCustomTypeIdentifier customIdentifier: String? = nil) throws {
-        guard Thread.isMainThread == true else {
-            throw ErrorDomain.notMainThread
-        }
-        
         let type = factory.type
         
         let identifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
-        factories[identifier] = factory
+        queue.sync {
+            factories[identifier] = factory
+        }
     }
         
     // MARK: SimpleResolvable
@@ -103,19 +106,23 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
                                  forCustomTypeIdentifier customIdentifier: String?,
                                  factoryParameters: [String: Any]? = nil,
                                  resolver: SimpleResolvable) throws -> Service {
-        guard Thread.isMainThread == true else {
-            throw ErrorDomain.notMainThread
-        }
-        
         let serviceIdentifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
         
         // load form store
-        if let service = store[serviceIdentifier] as? Service {
+        var fetchedService: Any?
+        queue.sync {
+            fetchedService = store[serviceIdentifier]
+        }
+        if let service = fetchedService as? Service {
             return service
         }
         
         // load service from factory
-        guard let factory = factories[serviceIdentifier] else {
+        var factory: Factory?
+        queue.sync {
+            factory = factories[serviceIdentifier]
+        }
+        guard let factory = factory else {
             throw ErrorDomain.factoryMissing(identifier: serviceIdentifier)
         }
         
@@ -125,7 +132,9 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         }
         
         // keep in store built object for later
-        store[serviceIdentifier] = service
+        queue.sync {
+            store[serviceIdentifier] = service
+        }
         
         return service
     }
@@ -144,7 +153,9 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     // MARK: testing
     
     func removeAll() {
-        factories.removeAll()
-        store.removeAll()
+        queue.sync {
+            factories.removeAll()
+            store.removeAll()
+        }
     }
 }

@@ -44,6 +44,9 @@ final class ITSimpleReslover: XCTestCase {
         // WHEN
         do {
             try resolver.store(factory: factory)
+            let result = InjectService<SomeClass>().wrappedValue
+            
+            XCTAssertNotNil(result)
         }
         
         // THEN
@@ -52,7 +55,7 @@ final class ITSimpleReslover: XCTestCase {
         }
         
         XCTAssertEqual(resolver.factories.count, 1)
-        XCTAssertEqual(resolver.store.count, 0)
+        XCTAssertEqual(resolver.store.count, 1)
     }
     
     func testStoreFactory_other() {
@@ -72,28 +75,26 @@ final class ITSimpleReslover: XCTestCase {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try resolver.store(factory: factory)
-                XCTFail("This should throw")
+                
+                let result = InjectService<SomeClass>().wrappedValue
+                
+                XCTAssertNotNil(result)
+                
+                // all good
+                group.leave()
             }
             
             // THEN
             catch {
-                guard let error = error as? SimpleResolver.ErrorDomain,
-                      case SimpleResolver.ErrorDomain.notMainThread = error else {
-                    XCTFail("Unexpected \(error)")
-                    group.leave()
-                    return
-                }
-                
-                // all good
-                group.leave()
+                XCTFail("This should not throw")
             }
         }
         
         group.wait()
         
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
-        XCTAssertEqual(resolver.factories.count, 0)
-        XCTAssertEqual(resolver.store.count, 0)
+        XCTAssertEqual(resolver.factories.count, 1)
+        XCTAssertEqual(resolver.store.count, 1)
     }
     
     // MARK: - resolve(type: forCustomTypeIdentifier: resolver:)

@@ -4,18 +4,16 @@ Minimalist dependency injection mechanism.
 
 ## Abstract
 Register factories thanks to the `Factory` type into the resolver.
-Use the property wrapper `@InjectService` to resolve a shared instance.
-
-Can be used from the mainthread only, will throw otherwise
+Use the property wrapper `@InjectService` to resolve a shared instance from any queue.
 
 ## Features
 - [x] Pure Swift Type Support
+- [x] Thread safety
 - [x] Injection by name
 - [x] Injection with Arguments
 - [x] Integration tests
 
 ## Roadmap
-- [ ] Thread safety
 - [ ] Lazy init
 - [ ] Optionals
 
