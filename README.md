@@ -3,7 +3,7 @@
 Minimalist dependency injection mechanism.
 
 ## Abstract
-Register factories thanks to the `Fatory` type into the resolver.
+Register factories thanks to the `Factory` type into the resolver.
 Use the property wrapper `@InjectService` to resolve a shared instance.
 
 Can be used from the mainthread only, will throw otherwise
