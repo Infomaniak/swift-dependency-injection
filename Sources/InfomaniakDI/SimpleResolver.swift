@@ -73,7 +73,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
-        case typeMissmatch(expected: String)
+        case typeMissmatch(expected: String, got: String)
     }
     
     /// One singleton to rule them all
@@ -127,8 +127,9 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         }
         
         // Apply factory closure
-        guard let service = try factory.build(factoryParameters: factoryParameters, resolver: resolver) as? Service else {
-            throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)")
+        let builtType = try factory.build(factoryParameters: factoryParameters, resolver: resolver)
+        guard let service = builtType as? Service else {
+            throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)", got: "\(builtType.self)")
         }
         
         // keep in store built object for later
