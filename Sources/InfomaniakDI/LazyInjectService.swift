@@ -18,10 +18,9 @@
 
 import Foundation
 
-// MARK: - InjectService<Service>
-
-/// A property wrapper that resolves shared objects
-@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible {
+/// Inject a service at the first use of the property
+@propertyWrapper public final class LazyInjectService<Service> {
+    
     public var debugDescription: String {
         """
         <\(type(of: self))
@@ -32,7 +31,7 @@ import Foundation
     }
     
     /// Store the resolved service
-    var service: Service!
+    var service: Service?
 
     public var container: SimpleResolvable
     public var customTypeIdentifier: String?
@@ -44,28 +43,31 @@ import Foundation
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
         self.container = container
-        
-        do {
-            self.service = try container.resolve(type: Service.self,
-                                                 forCustomTypeIdentifier: customTypeIdentifier,
-                                                 factoryParameters: factoryParameters,
-                                                 resolver: container)
-        } catch {
-            fatalError("DI fatal error :\(error)")
-        }
     }
 
     public var wrappedValue: Service {
         get {
-            self.service
+            if let service {
+                return service
+            }
+            
+            do {
+                self.service = try container.resolve(type: Service.self,
+                                                    forCustomTypeIdentifier: customTypeIdentifier,
+                                                    factoryParameters: factoryParameters,
+                                                    resolver: container)
+                return self.service!
+            } catch {
+                fatalError("DI fatal error :\(error)")
+            }
         }
         set {
             fatalError("You are not expected to substitute resolved objects")
         }
     }
     
-    /// The property wrapper itself for debugging and testing
-    public var projectedValue: Self {
+    /// The property wrapper itself for debugging and testing 
+    public var projectedValue: LazyInjectService {
         self
     }
 
