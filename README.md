@@ -12,9 +12,9 @@ Use the property wrapper `@InjectService` to resolve a shared instance from any 
 - [x] Injection by name
 - [x] Injection with Arguments
 - [x] Integration tests
+- [x] Lazy init (with @LazyInjectService)
 
 ## Roadmap
-- [ ] Lazy init
 - [ ] Optionals
 
 ## Requirements
