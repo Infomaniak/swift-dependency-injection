@@ -42,18 +42,12 @@ final class ITSimpleReslover: XCTestCase {
         }
         
         // WHEN
-        do {
-            try resolver.store(factory: factory)
-            let result = InjectService<SomeClass>().wrappedValue
-            
-            XCTAssertNotNil(result)
-        }
+        resolver.store(factory: factory)
+        let result = InjectService<SomeClass>().wrappedValue
+
         
         // THEN
-        catch {
-            XCTFail("Unexpected \(error)")
-        }
-        
+        XCTAssertNotNil(result)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
     }
@@ -73,25 +67,18 @@ final class ITSimpleReslover: XCTestCase {
 
         // WHEN
         DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                try resolver.store(factory: factory)
-                
-                let result = InjectService<SomeClass>().wrappedValue
-                
-                XCTAssertNotNil(result)
-                
-                // all good
-                group.leave()
-            }
+            resolver.store(factory: factory)
             
-            // THEN
-            catch {
-                XCTFail("This should not throw")
-            }
+            let result = InjectService<SomeClass>().wrappedValue
+            
+            XCTAssertNotNil(result)
+            
+            // all good
+            group.leave()
         }
-        
         group.wait()
         
+        // THEN
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
@@ -109,7 +96,7 @@ final class ITSimpleReslover: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         do {
@@ -159,8 +146,8 @@ final class ITSimpleReslover: XCTestCase {
         }
         
         // Order of call to store does not matter, but should be done asap
-        try! resolver.store(factory: dependentFactory)
-        try! resolver.store(factory: factory)
+        resolver.store(factory: dependentFactory)
+        resolver.store(factory: factory)
         
         // WHEN
         let chain = ClassThatChainsDI()
@@ -205,8 +192,8 @@ final class ITSimpleReslover: XCTestCase {
         }
         
         // Order of call to store does not matter, but should be done asap
-        try! resolver.store(factory: dependentFactory)
-        try! resolver.store(factory: factory)
+        resolver.store(factory: dependentFactory)
+        resolver.store(factory: factory)
         
         // WHEN
         let chain = StructThatChainsDI()

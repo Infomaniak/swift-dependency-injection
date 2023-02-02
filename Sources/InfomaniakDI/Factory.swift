@@ -18,18 +18,31 @@
 
 import Foundation
 
-/// Something that can build a type
-public struct Factory: CustomDebugStringConvertible {
-    
-    public var debugDescription: String {
-        "<\(Swift.type(of: self)): for type:\(self.type), closure:\(String(describing: self.closure))>"
-    }
-    
-    /// Something that can build a type, given some extra parameters and a resolver for chained dependency
-    public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) throws -> Any
+/// Something that can build a type, given some extra parameters and a resolver for chained dependency
+public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) throws -> Any
 
+/// Something that can build a type
+public protocol Factoryable {
+    
+    /// Required init for a Factoryable
+    /// - Parameters:
+    ///   - type: The type we register, prefer using a Protocol here. Great for testing.
+    ///   - closure: The closure that will return something that can be casted as `type`
+    init<Service>(type: Service.Type, closure: @escaping FactoryClosure)
+
+    /// Something that uses the stored closure to produce a type
+    /// - Parameters:
+    ///   - factoryParameters: Extra parameters that can be used to customize a type.
+    ///   - resolver: A resolver for chained resolution
+    /// - Returns: Return something that can be casted as the `type` declared at init. Will throw otherwise.
+    func build(factoryParameters: [String: Any]?, resolver: SimpleResolvable) throws -> Any
+}
+
+public struct Factory: Factoryable, CustomDebugStringConvertible {
     var closure: FactoryClosure
     var type: Any.Type
+
+    // MARK: Factoryable
 
     public init<Service>(type: Service.Type, closure: @escaping FactoryClosure) {
         self.closure = closure
@@ -38,6 +51,12 @@ public struct Factory: CustomDebugStringConvertible {
 
     public func build(factoryParameters: [String: Any]? = nil,
                       resolver: SimpleResolvable = SimpleResolver.sharedResolver) throws -> Any {
-        try closure(factoryParameters, resolver)
+        try self.closure(factoryParameters, resolver)
+    }
+
+    // MARK: CustomDebugStringConvertible
+
+    public var debugDescription: String {
+        "<\(Swift.type(of: self)): for type:\(self.type), closure:\(String(describing: self.closure))>"
     }
 }

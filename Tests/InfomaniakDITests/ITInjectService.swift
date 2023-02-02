@@ -41,7 +41,7 @@ final class ITInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithDIProperty = ClassThatUsesDI()
@@ -66,7 +66,7 @@ final class ITInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithDIProperty = ClassThatUsesConformingDI()
@@ -94,8 +94,8 @@ final class ITInjectService: XCTestCase {
         let specialIdentifier = "specialIdentifier"
         let customIdentifier = "customIdentifier"
         
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
         
         // WHEN
         let classWithServicies = ClassThatUsesCustomIdentifiersDI()
@@ -128,7 +128,7 @@ final class ITInjectService: XCTestCase {
             return expectedObject
         }
 
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithService = ClassThatUsesFactoryParametersDI()
@@ -162,8 +162,8 @@ final class ITInjectService: XCTestCase {
         let specialIdentifier = "special"
         let customIdentifier = "custom"
         
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
         
         // WHEN
         let classWithServicies = ClassThatUsesComplexDI()
@@ -190,7 +190,7 @@ final class ITInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         let classThatDoesInlineDI = ClassThatDoesInlineDI()
         

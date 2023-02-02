@@ -31,7 +31,7 @@ public protocol SimpleResolvable {
     ///   - factoryParameters: some arguments that can be passed to the factory, customising the requested objects.
     ///   - resolver: something that can resolve a type, usefull for chaining types
     /// - Returns: the resolved service
-    /// - Throws: will throw if the requested type is unavaillable, or if called not from main thread
+    /// - Throws: will throw if the requested type is unavaillable or if the types in the factory are not matching
     func resolve<Service>(type: Service.Type,
                           forCustomTypeIdentifier customIdentifier: String?,
                           factoryParameters: [String: Any]?,
@@ -46,17 +46,14 @@ public protocol SimpleStorable {
     /// - Parameters:
     ///   - factory: the factory wrapper
     ///   - customIdentifier: use a custom identifier to be able to resolve _many_ objects of the _same_ type
-    /// - Throws: will throw if called not from main thread
     func store(factory: Factory,
-               forCustomTypeIdentifier customIdentifier: String?) throws
+               forCustomTypeIdentifier customIdentifier: String?)
 }
 
 // MARK: - SimpleResolver
 
 /// A minimalist DI solution
-/// For now, once initiated, stores types as long as the app lives
-///
-/// Access from Main Queue only
+/// Once initiated, stores types as long as the app lives
 public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible {
     public var debugDescription: String {
         var buffer: String!
@@ -91,7 +88,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     // MARK: SimpleStorable
     
     public func store(factory: Factory,
-                      forCustomTypeIdentifier customIdentifier: String? = nil) throws {
+                      forCustomTypeIdentifier customIdentifier: String? = nil) {
         let type = factory.type
         
         let identifier = buildIdentifier(type: type, forIdentifier: customIdentifier)

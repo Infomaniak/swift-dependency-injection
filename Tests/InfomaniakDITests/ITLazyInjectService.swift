@@ -41,7 +41,7 @@ final class ITLazyInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithDIProperty = ClassThatUsesLazyDI()
@@ -68,7 +68,7 @@ final class ITLazyInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithDIProperty = ClassThatUsesLazyConformingDI()
@@ -97,8 +97,8 @@ final class ITLazyInjectService: XCTestCase {
         let specialIdentifier = "specialIdentifier"
         let customIdentifier = "customIdentifier"
         
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
         
         // WHEN
         let classWithServicies = ClassThatUsesLazyCustomIdentifiersDI()
@@ -134,7 +134,7 @@ final class ITLazyInjectService: XCTestCase {
             return expectedObject
         }
 
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         // WHEN
         let classWithService = ClassThatUsesLazyFactoryParametersDI()
@@ -169,8 +169,8 @@ final class ITLazyInjectService: XCTestCase {
         let specialIdentifier = "special"
         let customIdentifier = "custom"
         
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
-        try! resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
+        resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
         
         // WHEN
         let classWithServicies = ClassThatUsesLazyComplexDI()
@@ -201,7 +201,7 @@ final class ITLazyInjectService: XCTestCase {
             return expectedObject
         }
         
-        try! resolver.store(factory: factory)
+        resolver.store(factory: factory)
         
         let classThatDoesInlineDI = ClassThatDoesLazyInlineDI()
         

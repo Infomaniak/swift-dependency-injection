@@ -20,7 +20,7 @@ import Foundation
 
 // MARK: - InjectService<Service>
 
-/// A property wrapper that resolves shared objects
+/// A property wrapper that resolves shared objects when the host type is initialized.
 @propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
