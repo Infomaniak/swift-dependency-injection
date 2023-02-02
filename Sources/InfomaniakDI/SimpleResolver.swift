@@ -44,10 +44,9 @@ public protocol SimpleStorable {
     ///
     /// You will virtualy never call this directly
     /// - Parameters:
-    ///   - factory: the factory wrapper
+    ///   - factory: a factory wrapper type
     ///   - customIdentifier: use a custom identifier to be able to resolve _many_ objects of the _same_ type
-    func store(factory: Factory,
-               forCustomTypeIdentifier customIdentifier: String?)
+    func store(factory: Factoryable, forCustomTypeIdentifier customIdentifier: String?)
 }
 
 // MARK: - SimpleResolver
@@ -77,7 +76,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     public static let sharedResolver = SimpleResolver()
     
     /// Factory collection
-    var factories = [String: Factory]()
+    var factories = [String: Factoryable]()
     
     /// Resolved object collection
     var store = [String: Any]()
@@ -87,7 +86,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     
     // MARK: SimpleStorable
     
-    public func store(factory: Factory,
+    public func store(factory: Factoryable,
                       forCustomTypeIdentifier customIdentifier: String? = nil) {
         let type = factory.type
         
@@ -115,7 +114,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         }
         
         // load service from factory
-        var factory: Factory?
+        var factory: Factoryable?
         queue.sync {
             factory = factories[serviceIdentifier]
         }

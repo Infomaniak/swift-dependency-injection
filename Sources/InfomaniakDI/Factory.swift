@@ -36,11 +36,17 @@ public protocol Factoryable {
     ///   - resolver: A resolver for chained resolution
     /// - Returns: Return something that can be casted as the `type` declared at init. Will throw otherwise.
     func build(factoryParameters: [String: Any]?, resolver: SimpleResolvable) throws -> Any
+    
+    /// The registered type, prefer using a Protocol here. Great for testing.
+    var type: Any.Type { get }
 }
 
 public struct Factory: Factoryable, CustomDebugStringConvertible {
-    var closure: FactoryClosure
-    var type: Any.Type
+    
+    /// The factory closure
+    private let closure: FactoryClosure
+    
+    public let type: Any.Type
 
     // MARK: Factoryable
 
