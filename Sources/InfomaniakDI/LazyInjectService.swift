@@ -19,22 +19,32 @@
 import Foundation
 
 /// Inject a service at the first use of the property
-@propertyWrapper public final class LazyInjectService<Service>: Identifiable {
+@propertyWrapper public final class LazyInjectService<Service>: Equatable, Identifiable {
+    /// Identifiable
+    ///
+    /// Something to link the identity of this property wrapper to the underlying Service type.
+    public let id = ObjectIdentifier(Service.self)
+
+    /// Equatable
+    ///
+    /// Two `LazyInjectService` that points to the same `Service` Metatype are expected to be equal (for the sake of SwiftUI
+    /// correctness)
+    public static func == (lhs: LazyInjectService<Service>, rhs: LazyInjectService<Service>) -> Bool {
+        return lhs.id == rhs.id
+    }
+
     public var debugDescription: String {
         """
         <\(type(of: self))
         wrapping type:'\(Service.self)'
         customTypeIdentifier:\(String(describing: customTypeIdentifier))
-        factoryParameters:\(String(describing: factoryParameters))'>
-        identity:\(id)
+        factoryParameters:\(String(describing: factoryParameters))
+        id:\(id)'>
         """
     }
 
     /// Store the resolved service
     var service: Service?
-
-    /// Something to uniquely identify this property wrapper
-    public let id: String = UUID().uuidString
 
     public var container: SimpleResolvable
     public var customTypeIdentifier: String?

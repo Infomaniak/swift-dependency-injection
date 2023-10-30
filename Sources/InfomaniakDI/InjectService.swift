@@ -21,16 +21,30 @@ import Foundation
 // MARK: - InjectService<Service>
 
 /// A property wrapper that resolves shared objects when the host type is initialized.
-@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible {
+@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible, Equatable, Identifiable {
+    /// Identifiable
+    ///
+    /// Something to link the identity of this property wrapper to the underlying Service type.
+    public let id = ObjectIdentifier(Service.self)
+
+    /// Equatable
+    ///
+    /// Two `InjectService` that points to the same `Service` Metatype are expected to be equal (for the sake of SwiftUI
+    /// correctness)
+    public static func == (lhs: InjectService<Service>, rhs: InjectService<Service>) -> Bool {
+        return lhs.id == rhs.id
+    }
+
     public var debugDescription: String {
         """
         <\(type(of: self))
         wrapping type:'\(Service.self)'
         customTypeIdentifier:\(String(describing: customTypeIdentifier))
-        factoryParameters:\(String(describing: factoryParameters))'>
+        factoryParameters:\(String(describing: factoryParameters))
+        id:\(id)'>
         """
     }
-    
+
     /// Store the resolved service
     var service: Service!
 
@@ -44,12 +58,12 @@ import Foundation
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
         self.container = container
-        
+
         do {
-            self.service = try container.resolve(type: Service.self,
-                                                 forCustomTypeIdentifier: customTypeIdentifier,
-                                                 factoryParameters: factoryParameters,
-                                                 resolver: container)
+            service = try container.resolve(type: Service.self,
+                                            forCustomTypeIdentifier: customTypeIdentifier,
+                                            factoryParameters: factoryParameters,
+                                            resolver: container)
         } catch {
             fatalError("DI fatal error :\(error)")
         }
@@ -57,16 +71,15 @@ import Foundation
 
     public var wrappedValue: Service {
         get {
-            self.service
+            service
         }
         set {
             fatalError("You are not expected to substitute resolved objects")
         }
     }
-    
+
     /// The property wrapper itself for debugging and testing
     public var projectedValue: Self {
         self
     }
-
 }
