@@ -13,6 +13,7 @@ Use the property wrapper `@InjectService` to resolve a shared instance from any 
 - [x] Injection with Arguments
 - [x] Integration tests
 - [x] Lazy init (with @LazyInjectService)
+- [x] Efficient SwiftUI with `@LazyInjectService` and `@InjectService` used as IVAR in `View`
 
 ## Roadmap
 - [ ] Optionals
