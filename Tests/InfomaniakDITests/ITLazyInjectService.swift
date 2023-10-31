@@ -218,6 +218,50 @@ final class ITLazyInjectService: XCTestCase {
     }
 }
 
+// MARK: - Performance
+
+final class ITLazyInjectService_Performance: XCTestCase {
+    override func setUp() {
+        SimpleResolver.sharedResolver.removeAll()
+
+        // Make sure something is registered before doing a test.
+        registerAllHelperTypes()
+    }
+
+    override func tearDown() {
+        SimpleResolver.sharedResolver.removeAll()
+    }
+
+    /// Testing the cost of doing a massive amount of creation of a LazyInjectService with a resolution of the wrapped type.
+    func testCreationAndResolutionCost() {
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                let _ = LazyInjectService<SomeClass>().wrappedValue
+            }
+        }
+    }
+
+    /// Testing the cost of doing a massive amount of creation of LazyInjectService, with comparison to mimic SwiftUI behaviour.
+    func testCreationAndComparisonCost() {
+        // GIVEN
+        @LazyInjectService var baseProperty: SomeClass
+        let _ = $baseProperty.wrappedValue // force a resolution to mimic SwiftUI, should not have an impact.
+
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                @LazyInjectService var newProperty: SomeClass
+                guard $baseProperty != $newProperty else {
+                    return
+                }
+
+                XCTFail("Unexpected")
+            }
+        }
+    }
+}
+
 // MARK: - Lazy Helper Class
 
 /// A class with only one resolved property

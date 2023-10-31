@@ -206,3 +206,47 @@ final class ITInjectService: XCTestCase {
         XCTAssertEqual(resolver.store.count, 1)
     }
 }
+
+// MARK: - Performance
+
+final class ITInjectService_Performance: XCTestCase {
+    override func setUp() {
+        SimpleResolver.sharedResolver.removeAll()
+
+        // Make sure something is registered before doing a test.
+        registerAllHelperTypes()
+    }
+
+    override func tearDown() {
+        SimpleResolver.sharedResolver.removeAll()
+    }
+
+    /// Testing the cost of doing a massive amount of creation of a InjectService with a resolution of the wrapped type.
+    func testCreationAndResolutionCost() {
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                let _ = InjectService<SomeClass>().wrappedValue
+            }
+        }
+    }
+
+    /// Testing the cost of doing a massive amount of creation of InjectService, with comparison to mimic SwiftUI behaviour.
+    func testCreationAndComparisonCost() {
+        // GIVEN
+        @InjectService var baseProperty: SomeClass
+        let _ = $baseProperty.wrappedValue // force a resolution
+
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                @InjectService var newProperty: SomeClass
+                guard $baseProperty != $newProperty else {
+                    return
+                }
+
+                XCTFail("Unexpected")
+            }
+        }
+    }
+}
