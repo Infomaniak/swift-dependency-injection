@@ -28,9 +28,9 @@ final class ITInjectService: XCTestCase {
     override func tearDown() {
         SimpleResolver.sharedResolver.removeAll()
     }
-    
+
     // MARK: - @InjectService
-    
+
     func testResolveSampleType_propertyWrapper() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -40,9 +40,9 @@ final class ITInjectService: XCTestCase {
             factoryClosureCallCount += 1
             return expectedObject
         }
-        
+
         resolver.store(factory: factory)
-        
+
         // WHEN
         let classWithDIProperty = ClassThatUsesDI()
         XCTAssertNotNil(classWithDIProperty.$injected.service, "the service is expected to be resolved")
@@ -50,12 +50,12 @@ final class ITInjectService: XCTestCase {
         // THEN
         XCTAssertTrue(expectedObject === classWithDIProperty.injected, "identity of resolved object should match")
         XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called once exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
     }
-    
+
     func testResolveSampleType_propertyWrapper_protocol() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -65,22 +65,22 @@ final class ITInjectService: XCTestCase {
             factoryClosureCallCount += 1
             return expectedObject
         }
-        
+
         resolver.store(factory: factory)
-        
+
         // WHEN
         let classWithDIProperty = ClassThatUsesConformingDI()
         XCTAssertNotNil(classWithDIProperty.$injected.service, "the service is expected to be resolved")
-        
+
         // THEN
         XCTAssertTrue(expectedObject === classWithDIProperty.injected, "identity of resolved object should match")
         XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called once exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
     }
-    
+
     func testResolveSampleType_propertyWrapper_withCustomIdentifiers() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -89,29 +89,29 @@ final class ITInjectService: XCTestCase {
             factoryClosureCallCount += 1
             return SomeClass()
         }
-        
+
         // We store a factory for a specific specialized type using an identifier
         let specialIdentifier = "specialIdentifier"
         let customIdentifier = "customIdentifier"
-        
+
         resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
         resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
-        
+
         // WHEN
         let classWithServicies = ClassThatUsesCustomIdentifiersDI()
         XCTAssertNotNil(classWithServicies.$special.service, "the service is expected to be resolved")
         XCTAssertNotNil(classWithServicies.$custom.service, "the service is expected to be resolved")
-        
+
         // THEN
         XCTAssertFalse(classWithServicies.custom === classWithServicies.special,
                        "`custom` and `special` should be resolved to two distinct objects")
         XCTAssertEqual(factoryClosureCallCount, 2, "the factory closure should be called twice exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 2)
         XCTAssertEqual(resolver.store.count, 2)
     }
-    
+
     func testResolveSampleType_propertyWrapper_withCustomParameters() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -129,7 +129,7 @@ final class ITInjectService: XCTestCase {
         }
 
         resolver.store(factory: factory)
-        
+
         // WHEN
         let classWithService = ClassThatUsesFactoryParametersDI()
         XCTAssertNotNil(classWithService.$injected.service, "the service is expected to be resolved")
@@ -137,12 +137,12 @@ final class ITInjectService: XCTestCase {
         // THEN
         XCTAssertTrue(classWithService.injected === expectedObject, "the identity is expected to match")
         XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called twice exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
     }
-    
+
     func testResolveSampleType_propertyWrapper_identifierAndParameters() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -157,29 +157,29 @@ final class ITInjectService: XCTestCase {
             factoryClosureCallCount += 1
             return SomeClass()
         }
-        
+
         // We store a factory for a specific specialized type using an identifier
         let specialIdentifier = "special"
         let customIdentifier = "custom"
-        
+
         resolver.store(factory: factory, forCustomTypeIdentifier: specialIdentifier)
         resolver.store(factory: factory, forCustomTypeIdentifier: customIdentifier)
-        
+
         // WHEN
         let classWithServicies = ClassThatUsesComplexDI()
         XCTAssertNotNil(classWithServicies.$special.service, "the service is expected to be resolved")
         XCTAssertNotNil(classWithServicies.$custom.service, "the service is expected to be resolved")
-        
+
         // THEN
         XCTAssertFalse(classWithServicies.custom === classWithServicies.special,
                        "`custom` and `special` should resolve two distinct objects")
         XCTAssertEqual(factoryClosureCallCount, 2, "the factory closure should be called twice exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 2)
         XCTAssertEqual(resolver.store.count, 2)
     }
-    
+
     func testResolveSampleType_inlineResolution() {
         // GIVEN
         let resolver = SimpleResolver.sharedResolver
@@ -189,113 +189,64 @@ final class ITInjectService: XCTestCase {
             factoryClosureCallCount += 1
             return expectedObject
         }
-        
+
         resolver.store(factory: factory)
-        
+
         let classThatDoesInlineDI = ClassThatDoesInlineDI()
-        
+
         // WHEN
         let resolved = classThatDoesInlineDI.inlineDI()
-        
+
         // THEN
         XCTAssertTrue(expectedObject === resolved, "identity of resolved object should match")
         XCTAssertEqual(factoryClosureCallCount, 1, "the factory closure should be called once exactly")
-        
+
         XCTAssertEqual(resolver.factories.count, resolver.store.count)
         XCTAssertEqual(resolver.factories.count, 1)
         XCTAssertEqual(resolver.store.count, 1)
     }
 }
 
-// MARK: - Helper Class
+// MARK: - Performance
 
-class SomeClass {}
+final class ITInjectService_Performance: XCTestCase {
+    override func setUp() {
+        SimpleResolver.sharedResolver.removeAll()
 
-protocol SomeClassable: AnyObject {}
-
-class SomeClassConforming: SomeClassable {}
-
-/// A class with only one resolved property
-class ClassThatUsesDI {
-    init() {}
-    
-    @InjectService var injected: SomeClass
-}
-
-/// A class with only one resolved property
-class ClassThatUsesConformingDI {
-    init() {}
-    
-    @InjectService var injected: SomeClassable
-}
-
-/// A class with one resolved property using `factoryParameters`
-class ClassThatUsesFactoryParametersDI {
-    init() {}
-    
-    @InjectService(factoryParameters: ["someKey": "someValue"]) var injected: SomeClass
-}
-
-/// A class with two resolved properties of the same type using `customTypeIdentifier`
-class ClassThatUsesCustomIdentifiersDI {
-    init() {}
-    
-    @InjectService(customTypeIdentifier: "specialIdentifier") var special: SomeClass
-    
-    @InjectService(customTypeIdentifier: "customIdentifier") var custom: SomeClass
-}
-
-/// A class with two resolved properties of the same type using `customTypeIdentifier` and  using `factoryParameters`
-class ClassThatUsesComplexDI {
-    init() {}
-    
-    @InjectService(customTypeIdentifier: "special",
-                   factoryParameters: ["someKey": "someValue"]) var special: SomeClass
-    
-    @InjectService(customTypeIdentifier: "custom",
-                   factoryParameters: ["someKey": "someValue"]) var custom: SomeClass
-}
-
-/// A class with only one resolved property
-class ClassThatChainsDI {
-    init() {}
-    
-    @InjectService var injected: ClassWithSomeDependentType
-}
-
-/// Resolve a type inside a function
-class ClassThatDoesInlineDI {
-    init() {}
-    
-    func inlineDI() -> SomeClass {
-        let resolved = InjectService<SomeClass>().wrappedValue
-        return resolved
+        // Make sure something is registered before doing a test.
+        registerAllHelperTypes()
     }
-}
 
-class ClassWithSomeDependentType {
-    let dependency: SomeClass
-    
-    init(dependency: SomeClass) {
-        self.dependency = dependency
+    override func tearDown() {
+        SimpleResolver.sharedResolver.removeAll()
     }
-}
 
-// MARK: - Helper Struct
+    /// Testing the cost of doing a massive amount of creation of a InjectService with a resolution of the wrapped type.
+    func testCreationAndResolutionCost() {
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                let _ = InjectService<SomeClass>().wrappedValue
+            }
+        }
+    }
 
-struct SomeStruct {
-    let identity: String = UUID().uuidString
-}
+    /// Testing the cost of doing a massive amount of creation of InjectService, with comparison to mimic SwiftUI behaviour.
+    func testCreationAndComparisonCost() {
+        // GIVEN
+        @InjectService var baseProperty: SomeClass
+        let _ = $baseProperty.wrappedValue // force a resolution
 
-/// A class with only one resolved property
-struct StructThatChainsDI {
-    @InjectService var injected: StructWithSomeDependentType
-}
+        // WHEN
+        measure {
+            for _ in 0 ... 1_000_000 {
+                @InjectService var newProperty: SomeClass
+                guard $baseProperty != $newProperty else {
+                    return
+                }
 
-class StructWithSomeDependentType {
-    let dependency: SomeStruct
-    
-    init(dependency: SomeStruct) {
-        self.dependency = dependency
+                XCTFail("Unexpected")
+            }
+        }
     }
 }
