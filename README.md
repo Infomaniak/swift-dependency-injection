@@ -21,6 +21,7 @@ Anything with first party Swift support. (iOS / macOS / Linux …)
 
 ## Roadmap
 - [ ] Optionals
+- [ ] Multiple containers
 
 ## Requirements
 - Swift 5.x +
@@ -57,4 +58,4 @@ Checkout `ITSimpleReslover.swift` for more advanced examples.
 
 ## Licence
 
-This package is available under the permissive ApacheV2 licence. 
+This package is available under the permissive ApacheV2 licence for you to enjoy. 
