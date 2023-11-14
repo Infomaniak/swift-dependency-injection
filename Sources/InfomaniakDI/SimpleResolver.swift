@@ -1,20 +1,15 @@
-/*
- InfomaniakDI
- Copyright (C) 2023 Infomaniak Network SA
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing,
+//  software distributed under the License is distributed on an
+//  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+//  KIND, either express or implied.  See the License for the
+//  specific language governing permissions and limitations
+//  under the License.
 
 import Foundation
 
@@ -66,44 +61,44 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         }
         return buffer
     }
-    
+
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
         case typeMissmatch(expected: String, got: String)
     }
-    
+
     /// One singleton to rule them all
     public static let sharedResolver = SimpleResolver()
-    
+
     /// Factory collection
     var factories = [String: Factoryable]()
-    
+
     /// Resolved object collection
     var store = [String: Any]()
 
     /// A serial queue for thread safety
     private let queue = DispatchQueue(label: "com.infomaniakDI.resolver")
-    
+
     // MARK: SimpleStorable
-    
+
     public func store(factory: Factoryable,
                       forCustomTypeIdentifier customIdentifier: String? = nil) {
         let type = factory.type
-        
+
         let identifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
         queue.sync {
             factories[identifier] = factory
         }
     }
-        
+
     // MARK: SimpleResolvable
-    
+
     public func resolve<Service>(type: Service.Type,
                                  forCustomTypeIdentifier customIdentifier: String?,
                                  factoryParameters: [String: Any]? = nil,
                                  resolver: SimpleResolvable) throws -> Service {
         let serviceIdentifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
-        
+
         // load form store
         var fetchedService: Any?
         queue.sync {
@@ -112,7 +107,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         if let service = fetchedService as? Service {
             return service
         }
-        
+
         // load service from factory
         var factory: Factoryable?
         queue.sync {
@@ -121,23 +116,23 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
         guard let factory = factory else {
             throw ErrorDomain.factoryMissing(identifier: serviceIdentifier)
         }
-        
+
         // Apply factory closure
         let builtType = try factory.build(factoryParameters: factoryParameters, resolver: resolver)
         guard let service = builtType as? Service else {
             throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)", got: "\(builtType.self)")
         }
-        
+
         // keep in store built object for later
         queue.sync {
             store[serviceIdentifier] = service
         }
-        
+
         return service
     }
-    
+
     // MARK: internal
-    
+
     func buildIdentifier(type: Any.Type,
                          forIdentifier identifier: String? = nil) -> String {
         if let identifier {
@@ -146,9 +141,9 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
             return "\(type)"
         }
     }
-    
+
     // MARK: testing
-    
+
     func removeAll() {
         queue.sync {
             factories.removeAll()
