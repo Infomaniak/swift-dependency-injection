@@ -14,8 +14,8 @@
 import Foundation
 @testable import InfomaniakDI
 
-public func registerAllHelperTypes() {
-    let resolver = SimpleResolver.sharedResolver
+public func registerAllHelperTypes(container: Container) {
+    let resolver = container
 
     let factories = [
         Factory(type: SomeClass.self) { _, _ in
@@ -57,48 +57,48 @@ class SomeClassConforming: SomeClassable {}
 class ClassThatUsesDI {
     init() {}
 
-    @InjectService var injected: SomeClass
+    @Inject(container: someContainer) var injected: SomeClass
 }
 
 /// A class with only one resolved property
 class ClassThatUsesConformingDI {
     init() {}
 
-    @InjectService var injected: SomeClassable
+    @Inject(container: someContainer) var injected: SomeClassable
 }
 
 /// A class with one resolved property using `factoryParameters`
 class ClassThatUsesFactoryParametersDI {
     init() {}
 
-    @InjectService(factoryParameters: ["someKey": "someValue"]) var injected: SomeClass
+    @Inject(factoryParameters: ["someKey": "someValue"], container: someContainer) var injected: SomeClass
 }
 
 /// A class with two resolved properties of the same type using `customTypeIdentifier`
 class ClassThatUsesCustomIdentifiersDI {
     init() {}
 
-    @InjectService(customTypeIdentifier: "specialIdentifier") var special: SomeClass
+    @Inject(customTypeIdentifier: "specialIdentifier", container: someContainer) var special: SomeClass
 
-    @InjectService(customTypeIdentifier: "customIdentifier") var custom: SomeClass
+    @Inject(customTypeIdentifier: "customIdentifier", container: someContainer) var custom: SomeClass
 }
 
 /// A class with two resolved properties of the same type using `customTypeIdentifier` and  using `factoryParameters`
 class ClassThatUsesComplexDI {
     init() {}
 
-    @InjectService(customTypeIdentifier: "special",
-                   factoryParameters: ["someKey": "someValue"]) var special: SomeClass
+    @Inject(customTypeIdentifier: "special",
+                   factoryParameters: ["someKey": "someValue"], container: someContainer) var special: SomeClass
 
-    @InjectService(customTypeIdentifier: "custom",
-                   factoryParameters: ["someKey": "someValue"]) var custom: SomeClass
+    @Inject(customTypeIdentifier: "custom",
+                   factoryParameters: ["someKey": "someValue"], container: someContainer) var custom: SomeClass
 }
 
 /// A class with only one resolved property
 class ClassThatChainsDI {
     init() {}
 
-    @InjectService var injected: ClassWithSomeDependentType
+    @Inject(container: someContainer) var injected: ClassWithSomeDependentType
 }
 
 /// Resolve a type inside a function
@@ -106,7 +106,7 @@ class ClassThatDoesInlineDI {
     init() {}
 
     func inlineDI() -> SomeClass {
-        let resolved = InjectService<SomeClass>().wrappedValue
+        let resolved = Inject<SomeClass>(container: someContainer).wrappedValue
         return resolved
     }
 }
@@ -127,7 +127,7 @@ struct SomeStruct {
 
 /// A class with only one resolved property
 struct StructThatChainsDI {
-    @InjectService var injected: StructWithSomeDependentType
+    @Inject(container: someContainer) var injected: StructWithSomeDependentType
 }
 
 class StructWithSomeDependentType {

@@ -14,13 +14,13 @@
 @testable import InfomaniakDI
 import XCTest
 
-/// Unit Tests of `LazyInjectService` regarding identity and equality
-final class UTLazyInjectService_Identity: XCTestCase {
-    /// Two `LazyInjectService` that points to the same Metatype are expected to be equal (for the sake of SwiftUI correctness)
-    func testTwoLazyInjectService_SameIdentityOfPropertyWrappers_ForClass() {
+/// Unit Tests of `LazyInject` regarding identity and equality
+final class UTLazyInject_Identity: XCTestCase {
+    /// Two `LazyInject` that points to the same Metatype are expected to be equal (for the sake of SwiftUI correctness)
+    func testTwoLazyInject_SameIdentityOfPropertyWrappers_ForClass() {
         // GIVEN
-        @LazyInjectService var some: SomeClass
-        @LazyInjectService var someBis: SomeClass
+        @LazyInject(container: someContainer) var some: SomeClass
+        @LazyInject(container: someContainer) var someBis: SomeClass
 
         // THEN
         XCTAssertEqual($some, $someBis, "Equality of the property wrappers are expected to match")
@@ -30,10 +30,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_SameIdentityOfPropertyWrappers_ForProtocol() {
+    func testTwoLazyInject_SameIdentityOfPropertyWrappers_ForProtocol() {
         // GIVEN
-        @LazyInjectService var some: SomeClassable
-        @LazyInjectService var someBis: SomeClassable
+        @LazyInject(container: someContainer) var some: SomeClassable
+        @LazyInject(container: someContainer) var someBis: SomeClassable
 
         // THEN
         XCTAssertEqual($some, $someBis, "Equality of the property wrappers are expected to match")
@@ -43,10 +43,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_SameIdentityOfPropertyWrappers_ForStruct() {
+    func testTwoLazyInject_SameIdentityOfPropertyWrappers_ForStruct() {
         // GIVEN
-        @LazyInjectService var some: SomeStruct
-        @LazyInjectService var someBis: SomeStruct
+        @LazyInject(container: someContainer) var some: SomeStruct
+        @LazyInject(container: someContainer) var someBis: SomeStruct
 
         // THEN
         XCTAssertEqual($some, $someBis, "Equality of the property wrappers are expected to match")
@@ -56,10 +56,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_SameIdentityOfPropertyWrappers_ForEnum() {
+    func testTwoLazyInject_SameIdentityOfPropertyWrappers_ForEnum() {
         // GIVEN
-        @LazyInjectService var some: SomeEnum
-        @LazyInjectService var someBis: SomeEnum
+        @LazyInject(container: someContainer) var some: SomeEnum
+        @LazyInject(container: someContainer) var someBis: SomeEnum
 
         // THEN
         XCTAssertEqual($some, $someBis, "Equality of the property wrappers are expected to match")
@@ -69,10 +69,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_NotSameIdentityOfPropertyWrappers_BetweenTwoClasses() {
+    func testTwoLazyInject_NotSameIdentityOfPropertyWrappers_BetweenTwoClasses() {
         // GIVEN
-        @LazyInjectService var some: SomeClass
-        @LazyInjectService var someOther: SomeOtherClass
+        @LazyInject(container: someContainer) var some: SomeClass
+        @LazyInject(container: someContainer) var someOther: SomeOtherClass
 
         // THEN
         XCTAssertFalse(
@@ -81,10 +81,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_NotSameIdentityOfPropertyWrappers_BetweenClassAndProtocol() {
+    func testTwoLazyInject_NotSameIdentityOfPropertyWrappers_BetweenClassAndProtocol() {
         // GIVEN
-        @LazyInjectService var someClass: SomeClass
-        @LazyInjectService var someProtocol: SomeClassable
+        @LazyInject(container: someContainer) var someClass: SomeClass
+        @LazyInject(container: someContainer) var someProtocol: SomeClassable
 
         // THEN
         XCTAssertFalse(
@@ -93,10 +93,10 @@ final class UTLazyInjectService_Identity: XCTestCase {
         )
     }
 
-    func testTwoLazyInjectService_SameIdentityOfPropertyWrappers_BetweenProtocolAndConformingClass() {
+    func testTwoLazyInject_SameIdentityOfPropertyWrappers_BetweenProtocolAndConformingClass() {
         // GIVEN
-        @LazyInjectService var someClassConforming: SomeClassConforming
-        @LazyInjectService var someProtocol: SomeClassable
+        @LazyInject(container: someContainer) var someClassConforming: SomeClassConforming
+        @LazyInject(container: someContainer) var someProtocol: SomeClassable
 
         // THEN
         XCTAssertFalse(

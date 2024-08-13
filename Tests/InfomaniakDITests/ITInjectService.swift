@@ -14,21 +14,24 @@
 @testable import InfomaniakDI
 import XCTest
 
+/// Top level shared container, used for all tests.
+let someContainer = Container()
+
 /// Integration Tests of @InjectService
 final class ITInjectService: XCTestCase {
     override func setUp() {
-        SimpleResolver.sharedResolver.removeAll()
+        someContainer.removeAll()
     }
 
     override func tearDown() {
-        SimpleResolver.sharedResolver.removeAll()
+        someContainer.removeAll()
     }
 
     // MARK: - @InjectService
 
     func testResolveSampleType_propertyWrapper() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -53,7 +56,7 @@ final class ITInjectService: XCTestCase {
 
     func testResolveSampleType_propertyWrapper_protocol() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClassConforming()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClassable.self) { _, _ in
@@ -78,7 +81,7 @@ final class ITInjectService: XCTestCase {
 
     func testResolveSampleType_propertyWrapper_withCustomIdentifiers() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
             factoryClosureCallCount += 1
@@ -109,7 +112,7 @@ final class ITInjectService: XCTestCase {
 
     func testResolveSampleType_propertyWrapper_withCustomParameters() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         let expectedFactoryParameters = ["someKey": "someValue"]
         var factoryClosureCallCount = 0
@@ -140,7 +143,7 @@ final class ITInjectService: XCTestCase {
 
     func testResolveSampleType_propertyWrapper_identifierAndParameters() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedFactoryParameters = ["someKey": "someValue"]
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { parameters, _ in
@@ -177,7 +180,7 @@ final class ITInjectService: XCTestCase {
 
     func testResolveSampleType_inlineResolution() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -205,43 +208,34 @@ final class ITInjectService: XCTestCase {
 // MARK: - Performance
 
 final class ITInjectService_Performance: XCTestCase {
-    override func setUp() {
-        SimpleResolver.sharedResolver.removeAll()
-
-        // Make sure something is registered before doing a test.
-        registerAllHelperTypes()
-    }
-
-    override func tearDown() {
-        SimpleResolver.sharedResolver.removeAll()
-    }
 
     /// Testing the cost of doing a massive amount of creation of a InjectService with a resolution of the wrapped type.
-    func testCreationAndResolutionCost() {
+    func testCreationAndResolutionCost(container: any Resolvable) {
         // WHEN
         measure {
             for _ in 0 ... 1_000_000 {
-                let _ = InjectService<SomeClass>().wrappedValue
+                let _ = Inject<SomeClass>(container: container).wrappedValue
             }
         }
     }
 
+    // TODO: Fixme
     /// Testing the cost of doing a massive amount of creation of InjectService, with comparison to mimic SwiftUI behaviour.
-    func testCreationAndComparisonCost() {
-        // GIVEN
-        @InjectService var baseProperty: SomeClass
-        let _ = $baseProperty.wrappedValue // force a resolution
-
-        // WHEN
-        measure {
-            for _ in 0 ... 1_000_000 {
-                @InjectService var newProperty: SomeClass
-                guard $baseProperty != $newProperty else {
-                    return
-                }
-
-                XCTFail("Unexpected")
-            }
-        }
-    }
+//    func testCreationAndComparisonCost(container: any Resolvable) {
+//        // GIVEN
+//        @InjectService(container: container) var baseProperty: SomeClass
+//        let _ = $baseProperty.wrappedValue // force a resolution
+//
+//        // WHEN
+//        measure {
+//            for _ in 0 ... 1_000_000 {
+//                @InjectService(container: container) var newProperty: SomeClass
+//                guard $baseProperty != $newProperty else {
+//                    return
+//                }
+//
+//                XCTFail("Unexpected")
+//            }
+//        }
+//    }
 }

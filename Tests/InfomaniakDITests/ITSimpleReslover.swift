@@ -17,18 +17,18 @@ import XCTest
 /// Integration Tests of the Simple DI mechanism
 final class ITSimpleReslover: XCTestCase {
     override func setUp() {
-        SimpleResolver.sharedResolver.removeAll()
+        someContainer.removeAll()
     }
 
     override func tearDown() {
-        SimpleResolver.sharedResolver.removeAll()
+        someContainer.removeAll()
     }
 
     // MARK: - store(factory:)
 
     func testStoreFactory_mainThread() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -38,7 +38,7 @@ final class ITSimpleReslover: XCTestCase {
 
         // WHEN
         resolver.store(factory: factory)
-        let result = InjectService<SomeClass>().wrappedValue
+        let result = Inject<SomeClass>(container: someContainer).wrappedValue
 
         // THEN
         XCTAssertNotNil(result)
@@ -48,7 +48,7 @@ final class ITSimpleReslover: XCTestCase {
 
     func testStoreFactory_other() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -63,7 +63,7 @@ final class ITSimpleReslover: XCTestCase {
         DispatchQueue.global(qos: .userInitiated).async {
             resolver.store(factory: factory)
 
-            let result = InjectService<SomeClass>().wrappedValue
+            let result = Inject<SomeClass>(container: someContainer).wrappedValue
 
             XCTAssertNotNil(result)
 
@@ -82,7 +82,7 @@ final class ITSimpleReslover: XCTestCase {
 
     func testResolveSampleType_callExplicitResolve() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -112,7 +112,7 @@ final class ITSimpleReslover: XCTestCase {
 
     func testResolveSampleType_chainedDependency_classes() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedObject = SomeClass()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeClass.self) { _, _ in
@@ -158,7 +158,7 @@ final class ITSimpleReslover: XCTestCase {
 
     func testResolveSampleType_chainedDependency_struct() {
         // GIVEN
-        let resolver = SimpleResolver.sharedResolver
+        let resolver = someContainer
         let expectedStruct = SomeStruct()
         var factoryClosureCallCount = 0
         let factory = Factory(type: SomeStruct.self) { _, _ in
