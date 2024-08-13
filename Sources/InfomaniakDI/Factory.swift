@@ -14,7 +14,7 @@
 import Foundation
 
 /// Something that can build a type, given some extra parameters and a resolver for chained dependency
-public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) throws -> Any
+public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: Resolvable) throws -> Any
 
 /// Something that can build a type
 public protocol Factoryable {
@@ -29,7 +29,7 @@ public protocol Factoryable {
     ///   - factoryParameters: Extra parameters that can be used to customize a type.
     ///   - resolver: A resolver for chained resolution
     /// - Returns: Return something that can be casted as the `type` declared at init. Will throw otherwise.
-    func build(factoryParameters: [String: Any]?, resolver: SimpleResolvable) throws -> Any
+    func build(factoryParameters: [String: Any]?, resolver: Resolvable) throws -> Any
 
     /// The registered type, prefer using a Protocol here. Great for testing.
     var type: Any.Type { get }
@@ -49,7 +49,7 @@ public struct Factory: Factoryable, CustomDebugStringConvertible {
     }
 
     public func build(factoryParameters: [String: Any]? = nil,
-                      resolver: SimpleResolvable = SimpleResolver.sharedResolver) throws -> Any {
+                      resolver: Resolvable) throws -> Any {
         try closure(factoryParameters, resolver)
     }
 

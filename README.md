@@ -21,16 +21,15 @@ Optimised to work well with SwiftUI Views.
 - [x] Injection by name
 - [x] Injection with Arguments
 - [x] Lazy init (with @LazyInjectService)
-
-## Roadmap
-- [ ] Optionals
-- [ ] Multiple containers
+- [.] Multiple containers
 
 ## Requirements
-- Swift 5.6 +
+- Swift 5.7 +
 - SPM
 
 ## Setup
+
+TODO: Containers doc
 
 Early on in the lifecycle of your app, you want to write something like this :
 

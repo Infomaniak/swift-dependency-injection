@@ -13,60 +13,61 @@
 
 import Foundation
 
-// MARK: - InjectService<Service>
-
-/// A property wrapper that resolves shared objects when the host type is initialized.
-@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible, Equatable, Identifiable {
+/// Inject a type at the first use of the property
+@propertyWrapper public final class LazyInject<Injected>: Equatable, Identifiable {
     /// Identifiable
     ///
     /// Something to link the identity of this property wrapper to the underlying Service type.
-    public let id = ObjectIdentifier(Service.self)
+    public let id = ObjectIdentifier(Injected.self)
 
     /// Equatable
     ///
-    /// Two `InjectService` that points to the same `Service` Metatype are expected to be equal (for the sake of SwiftUI
+    /// Two `LazyInjectService` that points to the same `Service` Metatype are expected to be equal (for the sake of SwiftUI
     /// correctness)
-    public static func == (lhs: InjectService<Service>, rhs: InjectService<Service>) -> Bool {
+    public static func == (lhs: LazyInject<Injected>, rhs: LazyInject<Injected>) -> Bool {
         return lhs.id == rhs.id
     }
 
     public var debugDescription: String {
         """
         <\(type(of: self))
-        wrapping type:'\(Service.self)'
+        wrapping type:'\(Injected.self)'
         customTypeIdentifier:\(String(describing: customTypeIdentifier))
         factoryParameters:\(String(describing: factoryParameters))
         id:\(id)'>
         """
     }
 
-    /// Store the resolved service
-    var service: Service!
+    /// Store the instance of the resolved type
+    var resolvedInstance: Injected?
 
-    public var container: SimpleResolvable
+    public var container: Resolvable
     public var customTypeIdentifier: String?
     public var factoryParameters: [String: Any]?
 
     public init(customTypeIdentifier: String? = nil,
                 factoryParameters: [String: Any]? = nil,
-                container: SimpleResolvable = SimpleResolver.sharedResolver) {
+                container: Resolvable) {
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
         self.container = container
-
-        do {
-            service = try container.resolve(type: Service.self,
-                                            forCustomTypeIdentifier: customTypeIdentifier,
-                                            factoryParameters: factoryParameters,
-                                            resolver: container)
-        } catch {
-            fatalError("DI fatal error :\(error)")
-        }
     }
 
-    public var wrappedValue: Service {
+    public var wrappedValue: Injected {
         get {
-            service
+            if let resolvedInstance {
+                return resolvedInstance
+            }
+
+            do {
+                resolvedInstance = try container.resolve(type: Injected.self,
+                                                forCustomTypeIdentifier: customTypeIdentifier,
+                                                factoryParameters: factoryParameters,
+                                                resolver: container)
+                return resolvedInstance!
+            } catch {
+                fatalError("DI fatal error :\(error)")
+            }
         }
         set {
             fatalError("You are not expected to substitute resolved objects")
@@ -74,7 +75,7 @@ import Foundation
     }
 
     /// The property wrapper itself for debugging and testing
-    public var projectedValue: Self {
+    public var projectedValue: LazyInject {
         self
     }
 }
