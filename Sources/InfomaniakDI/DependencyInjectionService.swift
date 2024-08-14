@@ -18,16 +18,8 @@ import Foundation
 /// Allows to add and remove dynamically containers.
 /// Also provides a standard, shared, singleton style, container.
 public final class DependencyInjectionService {
-    
     /// Shared container of all singletons of an executable
-    var _sharedContainer: Container
-    
-    public var sharedContainer: Container {
-        _sharedContainer
-    }
-    
-    public init(sharedContainer: Container = Container()) {
-        self._sharedContainer = sharedContainer
-    }
-    
+    public static let sharedContainer = Container()
+
+    public init() {}
 }
