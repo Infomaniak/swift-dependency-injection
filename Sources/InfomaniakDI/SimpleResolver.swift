@@ -18,7 +18,7 @@ import Foundation
 /// Something minimalist that can resolve a concrete type
 ///
 /// Servicies are kept alive for the duration of the app's life
-public protocol SimpleResolvable {
+public protocol SimpleResolvable: Sendable {
     /// The main solver funtion, tries to fetch an existing object or apply a factory if availlable
     /// - Parameters:
     ///   - type: the wanted type
@@ -34,7 +34,7 @@ public protocol SimpleResolvable {
 }
 
 /// Something that stores a factory for a given type
-public protocol SimpleStorable {
+public protocol SimpleStorable: Sendable {
     /// Store a factory closure for a given type
     ///
     /// You will virtualy never call this directly
@@ -48,7 +48,7 @@ public protocol SimpleStorable {
 
 /// A minimalist DI solution
 /// Once initiated, stores types as long as the app lives
-public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible {
+public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible, @unchecked Sendable {
     public var debugDescription: String {
         var buffer: String!
         queue.sync {

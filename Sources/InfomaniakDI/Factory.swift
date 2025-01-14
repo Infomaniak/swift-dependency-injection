@@ -17,7 +17,7 @@ import Foundation
 public typealias FactoryClosure = (_ parameters: [String: Any]?, _ resolver: SimpleResolvable) throws -> Any
 
 /// Something that can build a type
-public protocol Factoryable {
+public protocol Factoryable: Sendable {
     /// Required init for a Factoryable
     /// - Parameters:
     ///   - type: The type we register, prefer using a Protocol here. Great for testing.
@@ -35,7 +35,7 @@ public protocol Factoryable {
     var type: Any.Type { get }
 }
 
-public struct Factory: Factoryable, CustomDebugStringConvertible {
+public struct Factory: Factoryable, CustomDebugStringConvertible, @unchecked Sendable {
     /// The factory closure
     private let closure: FactoryClosure
 
