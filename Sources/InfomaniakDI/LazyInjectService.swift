@@ -14,7 +14,7 @@
 import Foundation
 
 /// Inject a service at the first use of the property
-@propertyWrapper public final class LazyInjectService<Service: Sendable>: Equatable, Identifiable, @unchecked Sendable {
+@propertyWrapper public final class LazyInjectService<Service>: Equatable, Identifiable, @unchecked Sendable {
     private let semaphore = DispatchSemaphore(value: 1)
 
     var service: Service?
@@ -44,10 +44,10 @@ import Foundation
 
     public let container: SimpleResolvable
     public let customTypeIdentifier: String?
-    public let factoryParameters: [String: Sendable]?
+    public let factoryParameters: [String: Any]?
 
     public init(customTypeIdentifier: String? = nil,
-                factoryParameters: [String: Sendable]? = nil,
+                factoryParameters: [String: Any]? = nil,
                 container: SimpleResolvable = SimpleResolver.sharedResolver) {
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters

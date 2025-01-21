@@ -16,7 +16,8 @@ import Foundation
 // MARK: - InjectService<Service>
 
 /// A property wrapper that resolves shared objects when the host type is initialized.
-@propertyWrapper public struct InjectService<Service: Sendable>: CustomDebugStringConvertible, Equatable, Identifiable, Sendable {
+@propertyWrapper public struct InjectService<Service>: CustomDebugStringConvertible, Equatable, Identifiable,
+    @unchecked Sendable {
     /// Identifiable
     ///
     /// Something to link the identity of this property wrapper to the underlying Service type.
@@ -44,10 +45,10 @@ import Foundation
 
     public let container: SimpleResolvable
     public let customTypeIdentifier: String?
-    public let factoryParameters: [String: Sendable]?
+    public let factoryParameters: [String: Any]?
 
     public init(customTypeIdentifier: String? = nil,
-                factoryParameters: [String: Sendable]? = nil,
+                factoryParameters: [String: Any]? = nil,
                 container: SimpleResolvable = SimpleResolver.sharedResolver) {
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
