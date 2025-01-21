@@ -14,7 +14,11 @@
 import Foundation
 
 /// Inject a service at the first use of the property
-@propertyWrapper public final class LazyInjectService<Service>: Equatable, Identifiable {
+@propertyWrapper public final class LazyInjectService<Service: Sendable>: Equatable, Identifiable, @unchecked Sendable {
+    private let semaphore = DispatchSemaphore(value: 1)
+
+    var service: Service?
+
     /// Identifiable
     ///
     /// Something to link the identity of this property wrapper to the underlying Service type.
@@ -38,15 +42,12 @@ import Foundation
         """
     }
 
-    /// Store the resolved service
-    var service: Service?
-
-    public var container: SimpleResolvable
-    public var customTypeIdentifier: String?
-    public var factoryParameters: [String: Any]?
+    public let container: SimpleResolvable
+    public let customTypeIdentifier: String?
+    public let factoryParameters: [String: Sendable]?
 
     public init(customTypeIdentifier: String? = nil,
-                factoryParameters: [String: Any]? = nil,
+                factoryParameters: [String: Sendable]? = nil,
                 container: SimpleResolvable = SimpleResolver.sharedResolver) {
         self.customTypeIdentifier = customTypeIdentifier
         self.factoryParameters = factoryParameters
@@ -55,16 +56,20 @@ import Foundation
 
     public var wrappedValue: Service {
         get {
+            semaphore.wait()
+            defer { semaphore.signal() }
+
             if let service {
                 return service
             }
 
             do {
-                service = try container.resolve(type: Service.self,
-                                                forCustomTypeIdentifier: customTypeIdentifier,
-                                                factoryParameters: factoryParameters,
-                                                resolver: container)
-                return service!
+                let resolvedService = try container.resolve(type: Service.self,
+                                                            forCustomTypeIdentifier: customTypeIdentifier,
+                                                            factoryParameters: factoryParameters,
+                                                            resolver: container)
+                service = resolvedService
+                return resolvedService
             } catch {
                 fatalError("DI fatal error :\(error)")
             }
