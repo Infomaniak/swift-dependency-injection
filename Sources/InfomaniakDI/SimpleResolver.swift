@@ -65,6 +65,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
         case typeMissmatch(expected: String, got: String)
+        case unknown
     }
 
     /// One singleton to rule them all
@@ -99,36 +100,49 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
                                  resolver: SimpleResolvable) throws -> Service {
         let serviceIdentifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
 
-        // load form store
-        var fetchedService: Any?
+        var resolvedService: Service?
+        var resolveError: Error?
         queue.sync {
-            fetchedService = store[serviceIdentifier]
+            do {
+                resolvedService = try loadOrResolve(
+                    serviceIdentifier: serviceIdentifier,
+                    factoryParameters: factoryParameters,
+                    resolver: resolver
+                )
+            } catch {
+                resolveError = error
+            }
         }
-        if let service = fetchedService as? Service {
+
+        guard let resolvedService else {
+            guard let resolveError else {
+                throw ErrorDomain.unknown
+            }
+            throw resolveError
+        }
+
+        return resolvedService
+    }
+
+    private func loadOrResolve<Service>(serviceIdentifier: String,
+                                        factoryParameters: [String: Any]?,
+                                        resolver: SimpleResolvable) throws -> Service {
+        if let fetchedObject = store[serviceIdentifier],
+            let fetchedService = fetchedObject as? Service {
+            return fetchedService
+        } else {
+            guard let factory = factories[serviceIdentifier] else {
+                throw ErrorDomain.factoryMissing(identifier: serviceIdentifier)
+            }
+
+            let builtType = try factory.build(factoryParameters: factoryParameters, resolver: resolver)
+            guard let service = builtType as? Service else {
+                throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)", got: "\(builtType.self)")
+            }
+
+            store[serviceIdentifier] = service
             return service
         }
-
-        // load service from factory
-        var factory: Factoryable?
-        queue.sync {
-            factory = factories[serviceIdentifier]
-        }
-        guard let factory = factory else {
-            throw ErrorDomain.factoryMissing(identifier: serviceIdentifier)
-        }
-
-        // Apply factory closure
-        let builtType = try factory.build(factoryParameters: factoryParameters, resolver: resolver)
-        guard let service = builtType as? Service else {
-            throw ErrorDomain.typeMissmatch(expected: "\(Service.Type.self)", got: "\(builtType.self)")
-        }
-
-        // keep in store built object for later
-        queue.sync {
-            store[serviceIdentifier] = service
-        }
-
-        return service
     }
 
     // MARK: internal
