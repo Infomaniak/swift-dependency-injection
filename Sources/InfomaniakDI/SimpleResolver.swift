@@ -77,8 +77,14 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     /// Resolved object collection
     var store = [String: Any]()
 
+    private var queueSpecificKey: DispatchSpecificKey<AnyObject> = DispatchSpecificKey()
+
     /// A serial queue for thread safety
-    private let queue = DispatchQueue(label: "com.infomaniakDI.resolver")
+    private lazy var queue: DispatchQueue = {
+        let serialQueue = DispatchQueue(label: "com.infomaniakDI.resolver")
+        serialQueue.setSpecific(key: self.queueSpecificKey, value: serialQueue)
+        return serialQueue
+    }()
 
     // MARK: SimpleStorable
 
@@ -99,6 +105,14 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
                                  factoryParameters: [String: Any]? = nil,
                                  resolver: SimpleResolvable) throws -> Service {
         let serviceIdentifier = buildIdentifier(type: type, forIdentifier: customIdentifier)
+
+        guard notOnInternalQueue else {
+            return try loadOrResolve(
+                serviceIdentifier: serviceIdentifier,
+                factoryParameters: factoryParameters,
+                resolver: resolver
+            )
+        }
 
         var resolvedService: Service?
         var resolveError: Error?
@@ -128,7 +142,7 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
                                         factoryParameters: [String: Any]?,
                                         resolver: SimpleResolvable) throws -> Service {
         if let fetchedObject = store[serviceIdentifier],
-            let fetchedService = fetchedObject as? Service {
+           let fetchedService = fetchedObject as? Service {
             return fetchedService
         } else {
             guard let factory = factories[serviceIdentifier] else {
@@ -142,6 +156,14 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
 
             store[serviceIdentifier] = service
             return service
+        }
+    }
+
+    private var notOnInternalQueue: Bool {
+        if DispatchQueue.getSpecific(key: queueSpecificKey) != nil {
+            return false
+        } else {
+            return true
         }
     }
 
