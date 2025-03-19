@@ -66,7 +66,6 @@ public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebug
     enum ErrorDomain: Error {
         case factoryMissing(identifier: String)
         case typeMissmatch(expected: String, got: String)
-        case unknown
     }
 
     /// One singleton to rule them all
