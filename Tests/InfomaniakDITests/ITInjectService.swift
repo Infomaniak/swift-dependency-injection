@@ -40,7 +40,7 @@ final class ITInjectService: XCTestCase {
 
         // WHEN
         let classWithDIProperty = ClassThatUsesDI()
-        XCTAssertNotNil(classWithDIProperty.$injected.service, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithDIProperty.$injected.wrappedValue, "the service is expected to be resolved")
 
         // THEN
         XCTAssertTrue(expectedObject === classWithDIProperty.injected, "identity of resolved object should match")
@@ -65,7 +65,7 @@ final class ITInjectService: XCTestCase {
 
         // WHEN
         let classWithDIProperty = ClassThatUsesConformingDI()
-        XCTAssertNotNil(classWithDIProperty.$injected.service, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithDIProperty.$injected.wrappedValue, "the service is expected to be resolved")
 
         // THEN
         XCTAssertTrue(expectedObject === classWithDIProperty.injected, "identity of resolved object should match")
@@ -94,8 +94,8 @@ final class ITInjectService: XCTestCase {
 
         // WHEN
         let classWithServicies = ClassThatUsesCustomIdentifiersDI()
-        XCTAssertNotNil(classWithServicies.$special.service, "the service is expected to be resolved")
-        XCTAssertNotNil(classWithServicies.$custom.service, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithServicies.$special.wrappedValue, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithServicies.$custom.wrappedValue, "the service is expected to be resolved")
 
         // THEN
         XCTAssertFalse(classWithServicies.custom === classWithServicies.special,
@@ -127,7 +127,7 @@ final class ITInjectService: XCTestCase {
 
         // WHEN
         let classWithService = ClassThatUsesFactoryParametersDI()
-        XCTAssertNotNil(classWithService.$injected.service, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithService.$injected.wrappedValue, "the service is expected to be resolved")
 
         // THEN
         XCTAssertTrue(classWithService.injected === expectedObject, "the identity is expected to match")
@@ -162,8 +162,8 @@ final class ITInjectService: XCTestCase {
 
         // WHEN
         let classWithServicies = ClassThatUsesComplexDI()
-        XCTAssertNotNil(classWithServicies.$special.service, "the service is expected to be resolved")
-        XCTAssertNotNil(classWithServicies.$custom.service, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithServicies.$special.wrappedValue, "the service is expected to be resolved")
+        XCTAssertNotNil(classWithServicies.$custom.wrappedValue, "the service is expected to be resolved")
 
         // THEN
         XCTAssertFalse(classWithServicies.custom === classWithServicies.special,

@@ -41,8 +41,7 @@ import Foundation
         """
     }
 
-    let service: Service
-
+    public let wrappedValue: Service
     public let container: SimpleResolvable
     public let customTypeIdentifier: String?
     public let factoryParameters: [String: Any]?
@@ -55,21 +54,12 @@ import Foundation
         self.container = container
 
         do {
-            service = try container.resolve(type: Service.self,
-                                            forCustomTypeIdentifier: customTypeIdentifier,
-                                            factoryParameters: factoryParameters,
-                                            resolver: container)
+            wrappedValue = try container.resolve(type: Service.self,
+                                                 forCustomTypeIdentifier: customTypeIdentifier,
+                                                 factoryParameters: factoryParameters,
+                                                 resolver: container)
         } catch {
             fatalError("DI fatal error :\(error)")
-        }
-    }
-
-    public var wrappedValue: Service {
-        get {
-            service
-        }
-        set {
-            fatalError("You are not expected to substitute resolved objects")
         }
     }
 
