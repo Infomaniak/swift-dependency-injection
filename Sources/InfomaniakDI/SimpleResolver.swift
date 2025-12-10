@@ -49,7 +49,7 @@ public protocol SimpleStorable: Sendable {
 /// A minimalist DI solution
 /// Once initiated, stores types as long as the app lives
 public final class SimpleResolver: SimpleResolvable, SimpleStorable, CustomDebugStringConvertible, @unchecked Sendable {
-    private let recursiveLock = NSRecursiveLock()
+    private let recursiveLock = SafeRecursiveLock()
 
     public var debugDescription: String {
         recursiveLock.lock()
