@@ -13,7 +13,7 @@
 
 import Foundation
 
-/// A Thread safe recursive lock
+/// A thread safe recursive lock
 ///
 /// Unlike `NSRecursiveLock`, it can be called from arbitrary threads without creating deadlocks.
 final class SafeRecursiveLock: @unchecked Sendable {
@@ -29,17 +29,14 @@ final class SafeRecursiveLock: @unchecked Sendable {
 
         internalLock.lock()
         if owningThread == currentThread {
-            // Recursive lock by the same thread
             recursionCount += 1
             internalLock.unlock()
             return
         }
         internalLock.unlock()
 
-        // Wait until lock is available
         accessSemaphore.wait()
 
-        // We now own the lock
         internalLock.lock()
         owningThread = currentThread
         recursionCount = 1
@@ -59,7 +56,7 @@ final class SafeRecursiveLock: @unchecked Sendable {
         if recursionCount == 0 {
             owningThread = nil
             internalLock.unlock()
-            accessSemaphore.signal() // allow other threads to acquire
+            accessSemaphore.signal()
         } else {
             internalLock.unlock()
         }
