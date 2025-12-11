@@ -12,53 +12,42 @@
 //  under the License.
 
 import Foundation
+import os.lock
 
 /// A thread safe recursive lock
 ///
 /// Unlike `NSRecursiveLock`, it can be called from arbitrary threads without creating deadlocks.
 final class SafeRecursiveLock: @unchecked Sendable {
-    private let accessSemaphore = DispatchSemaphore(value: 1)
-    private let internalLock = NSLock()
-
+    private var unfairLock = os_unfair_lock()
     private var owningThread: Thread?
     private var recursionCount: Int = 0
 
     @inline(__always)
     func lock() {
-        let currentThread = Thread.current
+        let currentTread = Thread.current
 
-        internalLock.lock()
-        if owningThread == currentThread {
+        if owningThread === currentTread {
             recursionCount += 1
-            internalLock.unlock()
             return
         }
-        internalLock.unlock()
 
-        accessSemaphore.wait()
-
-        internalLock.lock()
-        owningThread = currentThread
+        os_unfair_lock_lock(&unfairLock)
+        owningThread = currentTread
         recursionCount = 1
-        internalLock.unlock()
     }
 
     @inline(__always)
     func unlock() {
-        internalLock.lock()
-        let currentThread = Thread.current
-        guard owningThread == currentThread else {
-            internalLock.unlock()
-            fatalError("Unlock called from a different thread!")
+        let current = Thread.current
+        guard owningThread === current else {
+            fatalError("Unlock from wrong thread")
         }
 
         recursionCount -= 1
+
         if recursionCount == 0 {
             owningThread = nil
-            internalLock.unlock()
-            accessSemaphore.signal()
-        } else {
-            internalLock.unlock()
+            os_unfair_lock_unlock(&unfairLock)
         }
     }
 }
